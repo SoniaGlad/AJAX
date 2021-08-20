@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>AJAX запросы к REST</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <h1 class="display-4">AJAX запросы к REST</h1>
+    </div>
+    <div class="row">
+      <div class="form-group col-md-12">
+        <input type="text" class="form-control" autocomplete="off" placeholder="Название книги" />
+      </div>
+      <div class="form-group col-md-12">
+        <input type="text" class="form-control" autocomplete="off" placeholder="Автор" />
+      </div>
+      <div class="form-group col-md-12">
+        <input type="text" class="form-control" autocomplete="off" placeholder="Год издания" />
+      </div>
+      <div class="form-group col-md-12">
+        <input type="button" class="btn btn-primary" onclick='handleClick()' value="Добавить" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group col-md-12" id="result">
+      </div>
+    </div>
+  </div>
+  <script>
+    'use strict';
+
+    function handleClick() {
+      const url = `/book`;
+      const xhr = new XMLHttpRequest();
+      const result = document.getElementById('result');
+      xhr.open('POST', url, true);
+
+      let inputs = document.querySelectorAll('input');
+
+
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhr.send(`title=${inputs[0].value}&author=${inputs[1].value}&pubyear=${inputs[2].value}`);
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4) {
+          if (xhr.status == 200) {
+
+            const res = JSON.parse(xhr.responseText);
+
+            if ('error' in res) {
+              alert(res['error'])
+            } else {
+
+              result.innerHTML += `
+<div class="row" id="b${res['id']}">
+<div class="col-md-10">
+<h4>${inputs[0].value}</h4>
+<p>Автор: ${inputs[1].value}, год издания ${inputs[2].value}
+</div>
+<div class="col-md-2">
+  <button class='btn btn-success' onclick='deleteBook(${res['id']})'>Удалить</button>
+</div>
+</div>                        
+`
+              alert(res['message'])
+            }
+          }
+        }
+      }
+
+
+    }
+
+    function deleteBook(id) {
+      const url = `/book`;
+      const xhr = new XMLHttpRequest();
+
+      xhr.open('POST', url, true);
+      //xhr.setRequestHeader('Content-Type','application/xhtml+xml');
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhr.send('_method=delete&id=' + id);
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4) {
+          if (xhr.status == 200) {
+
+            const res = JSON.parse(xhr.responseText);
+
+            if ('error' in res) {
+              alert(res['error'])
+            } else {
+              document.querySelector('#b' + id).remove()
+              setTimeout(() => {
+                alert(res['message'])
+              }, 500)
+            }
+          }
+        }
+      }
+
+
+    }
+    const init = () => {
+      const url = `/book`;
+      const xhr = new XMLHttpRequest();
+      const result = document.getElementById('result');
+      result.innerHTML = '';
+
+      xhr.open('GET', url, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+
+      xhr.send(null);
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4) {
+          if (xhr.status == 200) {
+
+            const books = JSON.parse(xhr.responseText);
+            result.innerHTML += `${books.map(book => {
+             return `
+<div class="row" id="b${book.id}">
+<div class="col-md-10">
+<h4>${book.title}</h4>
+<p>Автор: ${book.author}, год издания ${book.pubyear}
+</div>
+<div class="col-md-2">
+  <button class='btn btn-success' onclick='deleteBook(${book.id})'>Удалить</button>
+</div>
+</div>                        
+`       
+          }).join('')}`
+          }
+        }
+      }
+
+
+    }
+    init();
+  </script>
+
+</body>
+
+</html>
