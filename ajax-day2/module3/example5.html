@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>POST-запрос через AJAX</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <h1 class="display-4">POST-запрос + JSON</h1>
+    </div>
+    <div class="row">
+      <div class="form-group col-md-12">
+        <input type="test" class="form-control" autocomplete="off" onkeyup="handleKeyUp(this)" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group col-md-12" id="result">
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const handleKeyUp = (search) => {
+      const result = document.getElementById('result');
+      result.innerHTML = '';
+
+      if (search.value.length < 2) return;
+      const url = `getbooks.php`;
+      const xhr = new XMLHttpRequest();
+
+      xhr.open('POST', url, true);
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      //xhr.setRequestHeader('Content-Length',search.value.length);
+      xhr.send('search=' + encodeURIComponent(search.value));
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4) {
+          if (xhr.status == 200) {
+
+            books = JSON.parse(xhr.responseText);
+            if (books)
+              for (let i in books) {
+                result.innerHTML += `${books[i]['title']}<hr/>`
+              }
+          }
+        }
+      }
+
+
+    }
+  </script>
+
+</body>
+
+</html>
