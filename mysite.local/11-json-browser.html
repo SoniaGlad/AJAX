@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON в браузере</title>
+</head>
+
+<body>
+    <h1>JSON в браузере</h1>
+
+    <script>
+        let str = `{
+            "name": "Соня",
+            "age": 44,
+            "flag": true,
+            "arr": ["qwerty", "всякая фигня", 13],
+            "str": "строка"
+        }`;
+
+        // Метод JSON.parse() переводит JSON в JS
+        let obj = JSON.parse(str);
+        console.log(typeof obj, obj);
+
+        // Попытка назначить метод для объекта
+        obj.method_1 = function () {
+            console.log('Этот метод НЕ попадет в объект JSON!');
+        };
+
+        // Метод JSON.stringify() переводит JS в JSON
+        console.log(JSON.stringify(obj, null, '\t')); // null, '\t' - для форматирования 
+    </script>
+</body>
+
+</html>

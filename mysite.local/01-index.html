@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Базовый пример</h1>
+
+    <button>Нажать</button>
+
+    <script>
+        let button = document.querySelector('button');
+        button.addEventListener('click', handlerClick);
+
+        // Функция по клику на кнопку получает асинхронный запрос, получая в качестве ответа тело всей текущей страницы
+        function handlerClick(event) {
+            let target = event.target || event.srcElement;
+
+            let xhr = new XMLHttpRequest();
+
+            // xhr.open('GET', 'http://localhost:8080/mysite.local/01-index.html', true);
+            xhr.open('GET', location.href, true);
+
+            xhr.send(null);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+                    // полезная работа
+
+                    if (xhr.status == 200) {
+                        console.log(xhr.responseText);
+                    }
+                } else {
+                    // альтернативные действия
+                }
+            };
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>POST</title>
+</head>
+
+<body>
+    <h1>POST</h1>
+
+    <form action="http://localhost:8080/mysite.local/09-post.php" method="POST"
+        enctype="application/x-www-form-urlencoded">
+        <input type="hidden" name="secret" value="12345" class="secret">
+        <input name="param" class="param">
+        <input type="submit">
+    </form>
+
+    <hr>
+
+    <button class="btn btn-success">Нажать</button>
+
+    <div class="result"></div>
+
+    <script>
+        let button = document.querySelector('button');
+        button.addEventListener('click', handlerClick);
+
+        let input = document.querySelector('.param');
+        let secret = document.querySelector('.secret');
+
+        function handlerClick(event) {
+            let target = event.target || event.srcElement;
+            let xhr = new XMLHttpRequest();
+            let result = document.querySelector('.result');
+
+            // метод HEAD - получаем инфо только о заголовках, которые придут
+            xhr.open('POST', '09-post.php', true);
+
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+            // xhr.overrideMimeType('text/plain');
+            // метод отправки заголовка (тестовый вариант)
+            // xhr.setRequestHeader('X-Foo', 'sonchik-ponchik');
+            // метод отправки заголовка (кэширование, дублирование запроса)
+            // xhr.setRequestHeader('Cache-Control', 'max-age=0');
+            // xhr.setRequestHeader('Cache-Control', 'max-age=3000');
+
+            // let secret = 'dah';
+
+            // формирование строки с запросом
+            // xhr.send(`secret=${secret}&param=Sonia`);
+            xhr.send(`secret=${secret.value}&param=${input.value}`);
+
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        result.innerHTML += `${xhr.responseText}<hr/>`;
+                    }
+                    result.innerHTML += `<pre>${xhr.getAllResponseHeaders()}</pre>`;
+                    result.innerHTML += `<pre>${xhr.getResponseHeader('Content-Type')}</pre>`;
+                    result.innerHTML += `Content-Length: ${xhr.getResponseHeader('Content-Length')}<br/>`;
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
