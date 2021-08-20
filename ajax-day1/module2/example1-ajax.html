@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>HEAD запрос</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <h1 class="display-4">HEAD запрос</h1>      
+    </div>
+    <div class="row">
+    <input 
+        type="button" 
+        class="btn btn-success"
+        value="Посмотреть время" 
+        onclick="handleClick()"
+/> &nbsp;
+    
+    </div>
+    <h3>Результат:</h3>
+	<div class="row">	  
+	  <div id="result"></div>
+	</div>
+  </div>
+  <script>
+const handleClick = (url) => {
+ 
+ const result = document.getElementById('result');
+ const xhr = new XMLHttpRequest();
+ xhr.open('HEAD', 'example1.php', true);
+ xhr.send(null);
+
+
+ xhr.onreadystatechange = () => {
+   if(xhr.readyState == 4){
+	 if(xhr.status != 200){
+       result.innerHTML += `${xhr.status}<hr/>`
+	 } else {
+	   result.innerHTML += `${xhr.getResponseHeader('X-Time')}<hr/>`       
+     }
+console.log(xhr.getAllResponseHeaders())
+ }
+}
+}
+  </script>
+  
+</body>
+</html>

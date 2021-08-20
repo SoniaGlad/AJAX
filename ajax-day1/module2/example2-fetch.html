@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>POST-запрос через AJAX</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <h1 class="display-4">POST-запрос через Fetch</h1> 
+    </div>
+    <div class="row">
+      <div class="form-group col-md-12">
+        <input 
+          type="test" 
+          class="form-control" 
+          autocomplete="off"
+		  onkeyup="handleKeyUp(this)"
+        />
+      </div>	
+    </div>
+    <div class="row">
+      <div class="form-group col-md-12" id="result">
+      </div>	
+    </div> 	
+  </div>
+  <script>
+const handleKeyUp = (search) => {
+ const url = `example2.php`;
+ const result = document.getElementById('result');
+ result.innerHTML = '';
+ if(search.value.length < 2) return;
+
+ async function postData(url = '', data = {}) {
+  const response = await fetch(url, {
+    method: 'POST',
+    mode: 'cors', cache: 'no-cache', 
+    credentials: 'same-origin', 
+     //headers: {'Content-Type': 'application/json' },
+   headers: {'Content-Type': 'application/x-www-form-urlencoded' },
+    redirect: 'follow',
+    referrerPolicy: 'no-referrer', 
+    body:data 
+  });
+
+
+
+const reader = response.body.getReader();
+//узнаем длину получаемого содержимого
+const contentLength = +response.headers.get('Content-Length');
+console.log(contentLength)
+
+let receivedLength = 0; //кол-во байт, полученных в текущий момент
+let chunks = []; //тело ответа в формате массива двоичных кусочков
+while(true) {
+  const {done, value} = await reader.read();
+
+  if (done) {
+    break;
+  }
+
+  chunks.push(value);
+  receivedLength += value.length;
+
+  console.log(`Получено ${receivedLength} из ${contentLength}`)
+}
+
+// объединяем все кусочки в общий фрагмент
+let chunksAll = new Uint8Array(receivedLength); 
+let position = 0;
+for(let chunk of chunks) {
+  chunksAll.set(chunk, position); 
+  position += chunk.length;
+}
+// декодируем типизированный массив в строку
+let result = new TextDecoder("utf-8").decode(chunksAll);
+//console.log(result);
+
+  return result; 
+}
+
+
+postData(url, 'search='+encodeURIComponent(search.value))
+  .then((data) => {
+    //console.log(data);
+    result.innerHTML += `${data.split('|').join('<hr>')}<hr/>`
+  });
+
+}
+</script>
+  
+</body>
+</html>

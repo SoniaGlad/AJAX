@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Пример AJAX-запроса</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="row">
+      <h1 class="display-4">sync/async запросы</h1>
+    </div>
+    <div class="row">
+      <input type="button" class="btn btn-success" value="Синхронный" onclick="handleClick(false)" />&nbsp; <input
+        type="button" class="btn btn-success" value="Асинхронный" onclick="handleClick()" />
+    </div>
+  </div>
+  <script>
+    
+    const handleClick = (flag = true) => {
+      const url = 'http://localhost:8080/ajax-day1/module1/example2.php';
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url, flag);
+      xhr.send(null);
+
+      if (!flag) {
+        document.body.innerHTML += `${xhr.responseText}<hr/>`;
+      }
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4) {
+          document.body.innerHTML += `${xhr.responseText}<hr/>`;
+        }
+      }
+    }
+  </script>
+
+</body>
+
+</html>

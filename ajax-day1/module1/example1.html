@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Пример AJAX-запроса</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <h1 class="display-4">Пример AJAX-запроса</h1>
+    </div>
+    <div class="row">
+      <!-- <input type="button" class="btn btn-success" value="Отправить!" onclick="handleClick()"> -->
+      <input type="button" class="btn btn-success" value="Отправить!">
+    </div>
+  </div>
+
+  <script>
+    let button = document.querySelector('.btn');
+
+    button.addEventListener('click', handlerClick);
+
+    function handlerClick() {
+      const url = location.href;
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url, false);
+      xhr.send(null);
+      console.log(xhr.responseText);
+      document.querySelector('.container').innerHTML += '<pre>' + xhr.responseText.replace(/</gi, '&lt;') + '</pre>'
+    }
+  </script>
+
+</body>
+
+</html>
