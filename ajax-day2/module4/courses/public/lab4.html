@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Lab 4 - AJAX запросы к REST</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <h1 class="display-4">Lab 4 - AJAX запросы к REST</h1>
+      <p class="lead">Напишите запросы к REST-сервису</p>
+    </div>
+    <div class="row">
+      <div class="form-group col-md-12">
+        <input type="text" class="form-control" autocomplete="off" placeholder="Название курса" />
+      </div>
+      <div class="form-group col-md-12">
+        <input type="text" class="form-control" autocomplete="off" placeholder="url" />
+      </div>
+      <div class="form-group col-md-12">
+        <input type="text" class="form-control" autocomplete="off" placeholder="Продолжительность" />
+      </div>
+      <div class="form-group col-md-12">
+        <input type="button" class="btn btn-primary" onclick='handleClick()' value="Добавить" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group col-md-12" id="result">
+      </div>
+    </div>
+  </div>
+  <script>
+    function handleClick() {
+      /*по нажатию должен подготовливаться и отправляться POST-запрос с данными курса title, url, duration */
+
+      let [title, url, duration] = document.querySelectorAll('input');
+
+      let xhr = new XMLHttpRequest();
+
+      let urlOpen = '/course';
+
+      xhr.open('POST', urlOpen, true);
+
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+      xhr.send(`title=${title.value}&url=${url.value}&duration=${duration.value}`);
+
+      /*При статусе ответа 200 нужно получить и выполнить JSON.parse() над responseText*/
+
+      xhr.onreadystatechange = function () {
+
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          let response = JSON.parse(xhr.responseText);
+          let result = document.querySelector('#result');
+
+          /*при наличии 'error' in res вывести эту ошибку, иначе добавить к элементу с идентификатором result новый курс  */
+          if ('error' in response) {
+            console.log(response);
+            alert(response['error']);
+          } else {
+            alert(response['message']);
+
+            /* на кнопку "Удалить" рядом с каждым курсом  навесить обработчик deleteCourse() - он будет по номеру курса удалять курс */
+            result.innerHTML += `
+                <div class="row" id="b${response.id}">
+                  <div class="col-md-10">
+                    <h4>Название курса: ${title.value}</h4>
+                    <p>url: ${url.value}, продолжительность курса: ${duration.value}
+                  </div>
+                  <div class="col-md-2">
+                    <button class='btn btn-success' onclick='deleteCourse(${response.id})'>Удалить</button>
+                  </div>
+                </div>`;
+          }
+        }
+      }
+    }
+
+    function deleteCourse(id) {
+      /*по номеру курса подготовить POST запрос с параметрами _method=delete и id самого курса и выполнить его на адрес /course */
+
+      let xhr = new XMLHttpRequest();
+
+      let urlOpen = '/course';
+
+      xhr.open('POST', urlOpen, true);
+
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+      xhr.send(`method=delete&id=${id}`);
+
+      xhr.onreadystatechange = function () {
+
+        /*удалить сам курс из DOM*/
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          let response = JSON.parse(xhr.responseText);
+          alert(response['message']);
+          document.querySelector('#b' + id).remove();
+        }
+      }
+
+      title.value = '';
+      url.value = '';
+      duration.value = '';
+
+      title.focus();
+    }
+    const init = () => {
+      /*выполнить GET запрос к  /course, получить и вывести список всех курсов */
+
+      let xhr = new XMLHttpRequest();
+
+      let urlOpen = '/course';
+
+      xhr.open('GET', urlOpen, true);
+
+      xhr.send(null);
+
+      /*на каждый курс навесить обработчик с возможностью удаления по кнопке*/
+      xhr.onreadystatechange = function () {
+        let result = document.querySelector('#result');
+
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          let courses = JSON.parse(xhr.responseText);
+
+          courses.forEach(course => {
+            result.innerHTML += `
+                <div class="row" id="b${course.id}">
+                  <div class="col-md-10">
+                    <h4>Название курса: ${course.title}</h4>
+                    <p>url: ${course.url}, продолжительность курса: ${course.duration}
+                  </div>
+                  <div class="col-md-2">
+                    <button class='btn btn-success' onclick='deleteCourse(${response.id})'>Удалить</button>
+                  </div>
+                </div>`
+          });
+        }
+      }
+    }
+
+
+    init();
+  </script>
+
+</body>
+
+</html>
