@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Получение XML</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<body>
+  <h1>Получение XML</h1>
+  <button>Нажать</button>
+  <div id="result"></div>
+
+  <script>
+    // нашли батон
+    let button = document.querySelector('button');
+    // навесили на батон обработчик по клику
+    button.addEventListener('click', handleClick);
+
+    function handleClick(event) {
+      let target = event.target || event.srcElement;
+      let xhr = new XMLHttpRequest();
+      xhr.open('GET', 'currency.xml', true);
+      xhr.send(null);
+
+      // обработчик по состоянию изменения
+      xhr.onreadystatechange = function () {
+        // если состояние и статус ОК ->
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          // -> получаем ответ
+          let xml = xhr.responseXML;
+          // нашли результат, куда будем выводить
+          let result = document.querySelector('#result');
+          // создаем таблицу для вывода ответа
+          let table = "<table class='table table-bordered'>"
+          // создаем валюты  
+          let valutes = xml.getElementsByTagName('Valute');
+          // запихиваем в таблицу tr с th
+          table += "<tr>";
+          table += "<th>NumCode";
+          table += "<th>CharCode";
+          table += "<th>Nominal";
+          table += "<th>Name";
+          table += "<th>Value";
+
+          // пробегаем циклом по всей длине валют и ->  
+          for (let i = 0; i < valutes.length; i++) {
+            // -> заполняем таблицу дальше данными для ячеек
+            table += "<tr>";
+            table += "<td>" + valutes[i].childNodes[1].firstChild.nodeValue;
+            table += "<td>" + valutes[i].childNodes[3].firstChild.nodeValue;
+            table += "<td>" + valutes[i].childNodes[5].firstChild.nodeValue;
+            table += "<td>" + valutes[i].childNodes[7].firstChild.nodeValue;
+            table += "<td>" + valutes[i].childNodes[9].firstChild.nodeValue;
+          }
+          // закрываем таблицу
+          table += "</table>";
+          // выводим получившуюся таблицу с данными на страницу в результат
+          result.innerHTML = table;
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>

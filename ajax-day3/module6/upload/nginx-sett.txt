@@ -1,0 +1,21 @@
+server {
+    listen       80;
+    server_name  localhost;
+    client_max_body_size 20M;
+    root   /Users/SoniaGlad/Desktop/AJAX;
+    location / {
+        index  index.php index.html index.htm;
+    }
+    location ~ \.php$ {
+        fastcgi_pass   127.0.0.1:9000;
+        fastcgi_index  index.php;
+        # goes on same line:
+        fastcgi_param  SCRIPT_FILENAME /Users/SoniaGlad/Desktop/AJAX/$fastcgi_script_name;
+        include        fastcgi_params;
+    }
+}
+
+https://qna.habr.com/q/812829 
++
+В мануале пропущен шаг запуска php:
+sudo brew services start php
