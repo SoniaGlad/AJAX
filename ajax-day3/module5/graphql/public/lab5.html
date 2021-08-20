@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Lab 5 - GraphQL</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <h1 class="display-4">Lab 5 - GraphQL</h1>
+    </div>
+    <div class="form-group col-md-12">
+      <h3>Поиск по номеру книги</h3>
+    </div>
+    <div class="form-group col-md-12">
+      <input id="id" type="text" class="form-control" autocomplete="off" placeholder="Номер книги" />
+    </div>
+
+    <div class="form-group col-md-12">
+      <input type="button" class="btn btn-primary" onclick='searchBookById()' value="Найти" />
+    </div>
+
+    <div class="form-group col-md-12">
+      <h3>Добавление книги</h3>
+    </div>
+    <div class="form-group col-md-12">
+      <input id="title" type="text" class="form-control" autocomplete="off" placeholder="название книги" />
+    </div>
+    <div class="form-group col-md-12">
+      <input id="author" type="text" class="form-control" autocomplete="off" placeholder="автор книги" />
+    </div>
+    <div class="form-group col-md-12">
+      <input id="pubyear" type="text" class="form-control" autocomplete="off" placeholder="год издания" />
+    </div>
+    <div class="form-group col-md-12">
+      <input type="button" class="btn btn-primary" onclick='addBook()' value="Добавить книгу" />
+    </div>
+
+
+  </div>
+
+
+
+
+
+  <div class="row">
+    <div class="form-group col-md-12" id="result">
+    </div>
+  </div>
+
+  <script>
+    /* Реализовать searchBookById() - при вызове функции, получить значение из элемента с идентификатором "id". Если номер книги при поиске задан создать GraphQL-запрос к index2.php на получение книги с указанным номером. Если номер не указан, сформировать GraphQL-запрос на получение всех книг, выполнить запрос и отрисовать полученные книги
+     */
+    function searchBookById() {
+      let idbook = document.querySelector('#id').value;
+      let request = `{book ${idbook ? '(id:'+ idbook + ')' : ''}}`;
+
+      let xhr = new XMLHttpRequest();
+      xhr.open('POST', 'index2.php', true);
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      // посылаем запрос GraphQL ->
+      xhr.send(JSON.stringify({
+        query: request
+      }));
+      // -> и выводим результат в консоль
+      console.log(JSON.stringify({
+        query: request
+      }))
+
+      // навешиваем обработчик по изменению состояния
+      xhr.onreadystatechange = () => {
+
+        // если состояние и статус ОК, тогда ->
+        if (xhr.readyState == 4 && xhr.status == 200) {
+
+          // -> парсим ->
+          let response = JSON.parse(xhr.responseText);
+          console.log(response.data.book)
+          let books = JSON.parse(response.data.book);
+          let result = document.querySelector('#result');
+
+          // -> и выводим все книги в нужном нам формате
+          books.forEach(book => {
+            result.innerHTML += `
+            <div id='b${book.id}'>
+              <h3>${book.title}</h3>
+              <p>Автор: ${book.author}; год издания: <b>${book.pubyear}</b></p>
+              <p> 
+                <a href=# class="btn btn-success" onclick="showUpdateForm()";   return false;>Изменить</a>&nbsp;
+                <a href=# class="btn btn-success" onclick="deleteBook(${book.id}) ; return false;">Удалить</a>&nbsp;
+              </p>
+            </div>`
+
+          })
+        }
+      }
+
+    }
+
+    /* Реализовать addBook() - при вызове, собрать данные из полей, сформировать GraphQL-запрос, выполнить его и получить идентификатор новой книги. Отрисовать новую книгу.  */
+    function addBook() {
+      let title = document.querySelector('#title').value;
+      let author = document.querySelector('#author').value;
+      let pubyear = document.querySelector('#pubyear').value;
+
+
+      let xhr = new XMLHttpRequest();
+
+      xhr.open('POST', 'index2.php', true);
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      // посылаем запрос GraphQL на добавление (mutation) в нужном нам виде
+      let request = `mutation { insert(
+        title:"${title}",
+        author:"${author}",
+        pubyear:${pubyear}
+      )}`;
+
+      // посылаем запрос GraphQL
+      xhr.send(JSON.stringify({
+        query: request
+      }));
+      console.log(JSON.stringify({
+        query: request
+      }))
+
+      // навешиваем обработчик по изменению состояния
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          let response = JSON.parse(xhr.responseText);
+          console.log(response)
+
+          let id = response.data.insert;
+          let result = document.querySelector('#result');
+
+          result.innerHTML += `
+          <div id='b${id}'>
+            <h3>${title}</h3>
+            <p>Автор: ${author}; год издания: <b>${pubyear}</b></p>
+            <p> 
+              <button class="btn btn-success" onclick="showUpdateForm()">Изменить</button>&nbsp;
+              <button class="btn btn-success" onclick="deleteBook(${id});">Удалить</button>&nbsp;
+            </p>
+          </div>`
+
+        }
+      }
+
+    }
+
+    /* Реализовать deleteBook() - возле каждой книги разместить кнопку "Удалить", при нажатии на которую удалять книгу: создать GraphQL-запрос на удаление, отправить его на точку GraphQL. После удаления - вывести уведомление   */
+    function deleteBook(id) {
+      let xhr = new XMLHttpRequest();
+
+      xhr.open('POST', 'index2.php', true);
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      let request = `mutation { delete(id:${id})}`;
+      xhr.send(JSON.stringify({
+        query: request
+      }));
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          let response = JSON.parse(xhr.responseText);
+          let bookDel = document.querySelector('#b' + id);
+
+          // удаление на сервере
+          if (response.data.delete) {
+            alert('Книга удалена!')
+
+            // удаление на странице
+            bookDel.remove()
+          }
+        }
+      }
+
+    }
+
+    /* (Если будет время) Создать форму изменения информации о книге. Рядом с каждой книгой разместить кнопку "Изменить", форма должна показываться при нажатии на эту кнопку. При внесении изменений в поля и подтверждении ввода вносить изменения через GraphQL-запрос. Примечание: в GraphQL-сервере не реализован обработчик запроса на обновления */
+  </script>
+
+</body>
+
+</html>

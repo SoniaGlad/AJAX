@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Простой AJAX запрос к GraphQL</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <h1 class="display-4">Простой AJAX запрос к GraphQL</h1>
+    </div>
+
+    <div class="form-group col-md-12">
+      <input type="button" class="btn btn-primary" onclick='handleClick1()' value="Получить массив" />
+    </div>
+
+    <div class="form-group col-md-12">
+      <input type="button" class="btn btn-primary" onclick='handleClick2()' value="Найти 2 + 3" />
+    </div>
+  </div>
+  <div class="row">
+    <div class="form-group col-md-12" id="result">
+    </div>
+  </div>
+
+  <script>
+    function handleClick1() {
+
+      let url = 'http://localhost:8080/ajax-day3/module5/graphql/public/index0.php';
+      let xhr = new XMLHttpRequest();
+      let result = document.querySelector('#result');
+      xhr.open('POST', url, true);
+
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhr.send(JSON.stringify({query: `{ info }`}));
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4) {
+          if (xhr.status == 200) {
+
+            const res = JSON.parse(xhr.responseText);
+
+            if ('error' in res) {
+              console.log(res['error'])
+            } else {
+              console.log(res.data.info)
+            }
+          }
+        }
+      }
+    }
+
+    function handleClick2() {
+
+      let url = 'http://localhost:8080/ajax-day3/module5/graphql/public/index0.php';
+      let xhr = new XMLHttpRequest();
+      let result = document.getElementById('result');
+      xhr.open('POST', url, true);
+
+      xhr.setRequestHeader("Content-type", "application/json");
+      xhr.send(JSON.stringify({
+        query: `mutation{ sum(x:2,y:3) }`
+      }));
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4) {
+          if (xhr.status == 200) {
+
+            const res = JSON.parse(xhr.responseText);
+
+            if ('error' in res) {
+              console.log(res['error'])
+            } else {
+              console.log(res.data)
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+</body>
+
+</html>

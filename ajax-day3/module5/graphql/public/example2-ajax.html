@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>AJAX запросы к GraphQL</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <h1 class="display-4">AJAX запросы к GraphQL</h1>
+    </div>
+    <div class="form-group col-md-12">
+      <input type="text" class="form-control" autocomplete="off" placeholder="Номер книги" />
+    </div>
+
+    <div class="form-group col-md-12">
+      <input type="button" class="btn btn-primary" onclick='handleClick()' value="Найти" />
+    </div>
+    <div class="form-group col-md-12">
+      <input type="button" class="btn btn-primary" onclick='addBook()' value="Добавить книгу" />
+      <input type="button" class="btn btn-primary" onclick='deleteBook()' value="Удалить первую книгу" />
+    </div>
+  </div>
+  <div class="row">
+    <div class="form-group col-md-12" id="result">
+    </div>
+  </div>
+
+  <script>
+    function handleClick() {
+
+      const url = `http://localhost:8080/ajax-day3/module5/graphql/public/index2.php`;
+      const xhr = new XMLHttpRequest();
+      const result = document.getElementById('result');
+      result.innerHTML = '';
+      xhr.open('POST', url, true);
+
+      let inputs = document.querySelectorAll('input');
+
+
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      if (inputs[0].value) {
+        xhr.send(JSON.stringify({
+          query: `{  book(id: ${inputs[0].value}) }`
+        }));
+      } else {
+        xhr.send(JSON.stringify({
+          query: `{  book }`
+        }));
+      }
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4) {
+          if (xhr.status == 200) {
+
+            const res = JSON.parse(xhr.responseText);
+
+            if ('error' in res) {
+              alert(res['error'])
+            } else {
+              const books = JSON.parse(res.data.book)
+              console.log(books)
+              result.innerHTML += books.map(book => `
+<div class="row" id="b${book.id}">
+<div class="col-md-10">
+<h4>${book.title}</h4>
+<p>Автор: ${book.author}, год издания ${book.pubyear}
+</div>
+</div>                        
+`)
+
+            }
+          }
+        }
+      }
+
+
+    }
+
+
+    function addBook() {
+
+      const url = `http://localhost:8080/ajax-day3/module5/graphql/public/index2.php`;
+      const xhr = new XMLHttpRequest();
+      const result = document.getElementById('result');
+      xhr.open('POST', url, true);
+
+      xhr.setRequestHeader("Content-type", "application/json");
+      xhr.send(JSON.stringify({
+        query: `mutation{ insert(title:"qwe", author:"rty", pubyear:2020) }`
+      }));
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          const res = xhr.responseText;
+          console.log(res)
+        }
+      }
+    }
+
+    function deleteBook() {
+
+      const url = `http://localhost:8080/ajax-day3/module5/graphql/public/index2.php`;
+      const xhr = new XMLHttpRequest();
+      const result = document.getElementById('result');
+      xhr.open('POST', url, true);
+
+      xhr.setRequestHeader("Content-type", "application/json");
+      xhr.send(JSON.stringify({
+        query: `mutation{ delete(id:1) }`
+      }));
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          const res = JSON.parse(xhr.responseText);
+          console.log(res.data)
+        }
+      }
+    }
+  </script>
+
+</body>
+
+</html>
